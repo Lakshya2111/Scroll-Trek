@@ -28,6 +28,7 @@ fun TodayDistanceCard(
     todaySummary: DailySummary,
     streakState: StreakState,
     lifetimeM: Double,
+    isServiceRunning: Boolean,
     modifier: Modifier = Modifier
 ) {
     var expanded by remember { mutableStateOf(false) }
@@ -57,13 +58,33 @@ fun TodayDistanceCard(
                     verticalAlignment = Alignment.Top
                 ) {
                     Column {
-                        Text(
-                            text = "TODAY'S TREK",
-                            color = Color.White.copy(alpha = 0.6f),
-                            fontWeight = FontWeight.Bold,
-                            fontSize = 11.sp,
-                            letterSpacing = 1.sp
-                        )
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(6.dp)
+                        ) {
+                            Text(
+                                text = "TODAY'S TREK",
+                                color = Color.White.copy(alpha = 0.6f),
+                                fontWeight = FontWeight.Bold,
+                                fontSize = 11.sp,
+                                letterSpacing = 1.sp
+                            )
+                            Box(
+                                modifier = Modifier
+                                    .size(6.dp)
+                                    .background(
+                                        color = if (isServiceRunning) Color(0xFF81C784) else Color(0xFFE57373),
+                                        shape = androidx.compose.foundation.shape.CircleShape
+                                    )
+                            )
+                            Text(
+                                text = if (isServiceRunning) "ACTIVE" else "STOPPED",
+                                color = if (isServiceRunning) Color(0xFF81C784) else Color(0xFFE57373),
+                                fontWeight = FontWeight.Black,
+                                fontSize = 9.sp,
+                                letterSpacing = 0.5.sp
+                            )
+                        }
                         Spacer(modifier = Modifier.height(8.dp))
                         Text(
                             text = DistanceFormatter.format(todaySummary.totalDistanceM),

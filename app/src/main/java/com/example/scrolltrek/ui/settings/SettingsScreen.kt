@@ -26,6 +26,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import com.example.scrolltrek.ui.common.DistanceFormatter
+import com.example.scrolltrek.ui.common.ServiceUtils
 import kotlinx.coroutines.delay
 import kotlin.math.roundToInt
 
@@ -50,7 +51,7 @@ fun SettingsScreen(
 
     LaunchedEffect(Unit) {
         while (true) {
-            isServiceRunning = isAccessibilityServiceEnabled(context)
+            isServiceRunning = ServiceUtils.isAccessibilityServiceEnabled(context)
             delay(1000)
         }
     }
@@ -254,20 +255,3 @@ fun SettingsScreen(
     }
 }
 
-private fun isAccessibilityServiceEnabled(context: Context): Boolean {
-    val expectedComponentName = android.content.ComponentName(context, "com.example.scrolltrek.tracking.ScrollTrackingAccessibilityService")
-    val enabledServicesSetting = Settings.Secure.getString(
-        context.contentResolver,
-        Settings.Secure.ENABLED_ACCESSIBILITY_SERVICES
-    ) ?: return false
-    val colonSplitter = TextUtils.SimpleStringSplitter(':')
-    colonSplitter.setString(enabledServicesSetting)
-    while (colonSplitter.hasNext()) {
-        val componentNameString = colonSplitter.next()
-        val enabledService = android.content.ComponentName.unflattenFromString(componentNameString)
-        if (enabledService != null && enabledService == expectedComponentName) {
-            return true
-        }
-    }
-    return false
-}

@@ -5,17 +5,18 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Settings
 import androidx.compose.material3.*
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.getValue
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavHostController
+import com.example.scrolltrek.ui.common.ServiceUtils
+import kotlinx.coroutines.delay
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -29,9 +30,19 @@ fun HomeScreen(
     val streakState by viewModel.streakState.collectAsStateWithLifecycle()
     val weeklyAnalytics by viewModel.weekly.collectAsStateWithLifecycle()
 
+    var isServiceRunning by remember { mutableStateOf(false) }
+    val context = LocalContext.current
+
     LaunchedEffect(Unit) {
         viewModel.milestoneUnlock.collect { landmark ->
             navController.navigate("milestone/${landmark.id}")
+        }
+    }
+
+    LaunchedEffect(Unit) {
+        while (true) {
+            isServiceRunning = ServiceUtils.isAccessibilityServiceEnabled(context)
+            delay(1000)
         }
     }
 
@@ -70,6 +81,7 @@ fun HomeScreen(
                     todaySummary = todaySummary,
                     streakState = streakState,
                     lifetimeM = landmarkProgress.lifetimeDistanceM,
+                    isServiceRunning = isServiceRunning,
                     modifier = Modifier.padding(horizontal = 24.dp)
                 )
             }
