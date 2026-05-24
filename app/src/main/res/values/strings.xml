@@ -1,0 +1,4 @@
+<resources>
+    <string name="app_name">Scroll Trek</string>
+    <string name="accessibility_service_description">scrollTrek monitors scrolling distance across apps to map your habits to real-world landmarks. 100% local, no screen contents are ever read.</string>
+</resources>
