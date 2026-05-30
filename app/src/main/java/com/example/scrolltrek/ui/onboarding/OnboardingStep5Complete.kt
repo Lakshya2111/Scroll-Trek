@@ -65,7 +65,7 @@ fun OnboardingStep5Complete(
                     text = "Start scrolling any app. We'll keep count.",
                     style = MaterialTheme.typography.bodyLarge,
                     textAlign = TextAlign.Center,
-                    color = Color.Gray,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
                     modifier = Modifier.padding(horizontal = 16.dp)
                 )
 
@@ -107,7 +107,7 @@ fun FirstLandmarkPreview(modifier: Modifier = Modifier) {
                 .fillMaxSize()
                 .background(
                     Brush.verticalGradient(
-                        colors = listOf(Color(0xFFFFEB3B), Color(0xFFFF9800))
+                        colors = listOf(Color(0xFF81D4FA), Color(0xFF0288D1))
                     )
                 )
                 .padding(20.dp),
@@ -127,12 +127,12 @@ fun FirstLandmarkPreview(modifier: Modifier = Modifier) {
 
                 Column(horizontalAlignment = Alignment.CenterHorizontally) {
                     Text(
-                        text = "✏️",
+                        text = "🚲",
                         fontSize = 72.sp
                     )
                     Spacer(modifier = Modifier.height(12.dp))
                     Text(
-                        text = "Standard Pencil",
+                        text = "Adult Bicycle",
                         color = Primary,
                         fontWeight = FontWeight.Bold,
                         fontSize = 18.sp,
@@ -146,7 +146,7 @@ fun FirstLandmarkPreview(modifier: Modifier = Modifier) {
                         .padding(horizontal = 12.dp, vertical = 6.dp)
                 ) {
                     Text(
-                        text = "0.19 m",
+                        text = "1.75 m",
                         color = Color.White,
                         fontWeight = FontWeight.Bold,
                         fontSize = 13.sp

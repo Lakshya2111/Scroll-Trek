@@ -34,10 +34,10 @@ fun AppExclusionScreen(
     modifier: Modifier = Modifier
 ) {
     val context = LocalContext.current
-    val sharedPreferences = remember { context.getSharedPreferences("scrolltrek_prefs", Context.MODE_PRIVATE) }
+    val sharedPreferences = remember { context.getSharedPreferences(context.packageName + "_preferences", Context.MODE_PRIVATE) }
 
     var excludedApps by remember {
-        mutableStateOf(sharedPreferences.getStringSet("excluded_packages", emptySet()) ?: emptySet())
+        mutableStateOf(sharedPreferences.getStringSet("KEY_EXCLUDED_PACKAGES", emptySet()) ?: emptySet())
     }
 
     var installedApps by remember { mutableStateOf<List<AppInfo>>(emptyList()) }
@@ -154,7 +154,7 @@ fun AppExclusionScreen(
                                             excludedApps - app.packageName
                                         }
                                         sharedPreferences.edit()
-                                            .putStringSet("excluded_packages", newExclusions)
+                                            .putStringSet("KEY_EXCLUDED_PACKAGES", newExclusions)
                                             .apply()
                                         excludedApps = newExclusions
                                     }

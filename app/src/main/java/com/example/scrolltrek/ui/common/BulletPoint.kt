@@ -7,6 +7,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Check
 import androidx.compose.material.icons.rounded.Close
 import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -39,7 +40,7 @@ fun BulletPoint(
         Text(
             text = text,
             fontSize = 14.sp,
-            color = Color.Unspecified
+            color = MaterialTheme.colorScheme.onSurface
         )
     }
 }

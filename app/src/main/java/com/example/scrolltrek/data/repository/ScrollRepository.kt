@@ -2,11 +2,13 @@ package com.example.scrolltrek.data.repository
 
 import android.content.ContentValues
 import android.content.Context
+import android.content.Intent
 import android.content.SharedPreferences
 import android.net.Uri
 import android.os.Build
 import android.os.Environment
 import android.provider.MediaStore
+import com.example.scrolltrek.MainActivity
 import com.example.scrolltrek.data.db.ScrollTrekDatabase
 import com.example.scrolltrek.data.db.entity.DailyAggregate
 import com.example.scrolltrek.data.db.entity.MilestoneRecord
@@ -32,6 +34,7 @@ import java.io.OutputStreamWriter
 import java.time.LocalDate
 import javax.inject.Inject
 import javax.inject.Singleton
+import kotlin.math.roundToInt
 
 @Singleton
 class ScrollRepository @Inject constructor(
@@ -93,22 +96,23 @@ class ScrollRepository @Inject constructor(
     private var lastEventCount = 0
 
     init {
-        // 1. Initialize milestone records in the database if they are empty
+        // 1. Align assets landmarks with the database milestones on startup and evaluate
         repositoryScope.launch(Dispatchers.IO) {
             try {
-                val locked = milestoneDao.getLockedLandmarks()
-                val unlocked = milestoneDao.getUnlockedMilestones()
-                if (locked.isEmpty() && unlocked.isEmpty()) {
-                    val defaultMilestones = landmarkRepository.getAll().map {
-                        MilestoneRecord(
-                            landmarkId = it.id,
-                            unlockedAtMs = null,
-                            notificationSent = false,
-                            cardGenerated = false
-                        )
-                    }
-                    milestoneDao.insertAll(defaultMilestones)
+                val allLandmarks = landmarkRepository.getAll()
+                val defaultMilestones = allLandmarks.map {
+                    MilestoneRecord(
+                        landmarkId = it.id,
+                        unlockedAtMs = null,
+                        notificationSent = false,
+                        cardGenerated = false
+                    )
                 }
+                milestoneDao.insertAll(defaultMilestones)
+
+                // Evaluate milestones immediately to unlock any newly added ones that the user has already passed!
+                val lifetimeTotal = scrollRecordDao.getLifetimeTotal() ?: 0.0
+                milestoneEngine.evaluate(lifetimeTotal)
             } catch (e: Exception) {
                 e.printStackTrace()
             }
@@ -242,6 +246,19 @@ class ScrollRepository @Inject constructor(
         val existing = dailyAggregateDao.getDailyAggregate(dateKey)
         val dailyDistance = (existing?.totalDistanceM ?: 0.0) + newRecords.sumOf { it.deltaMeters }
 
+        val goalMeters = getDailyGoalFromDisk()
+        if (goalMeters > 0f && dailyDistance >= goalMeters) {
+            val lastDistance = existing?.totalDistanceM ?: 0.0
+            if (lastDistance < goalMeters) {
+                val todayStr = LocalDate.now().toString()
+                val lastNotifiedDate = sharedPreferences.getString("KEY_LAST_GOAL_REACHED_DATE", "")
+                if (lastNotifiedDate != todayStr) {
+                    sharedPreferences.edit().putString("KEY_LAST_GOAL_REACHED_DATE", todayStr).apply()
+                    sendGoalReachedNotification()
+                }
+            }
+        }
+
         val sessionCount = scrollRecordDao.getSessionCountForDate(dateKey)
         val activeMinutes = scrollRecordDao.getActiveMinutesForDate(dateKey)
 
@@ -266,6 +283,41 @@ class ScrollRepository @Inject constructor(
         dailyAggregateDao.insertOrUpdate(aggregate)
     }
 
+    private fun sendGoalReachedNotification() {
+        val notificationManager = context.getSystemService(Context.NOTIFICATION_SERVICE) as android.app.NotificationManager
+        val channelId = "scrolltrek_goal_alerts"
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            val name = "ScrollTrek Goal & Milestone Alerts"
+            val importance = android.app.NotificationManager.IMPORTANCE_HIGH
+            val channel = android.app.NotificationChannel(channelId, name, importance).apply {
+                description = "ScrollTrek Goal and Milestone Alerts"
+                enableLights(true)
+                enableVibration(true)
+                vibrationPattern = longArrayOf(100, 200, 300, 400, 500)
+            }
+            notificationManager.createNotificationChannel(channel)
+        }
+
+        val pendingIntent = android.app.PendingIntent.getActivity(
+            context,
+            1002,
+            Intent(context, MainActivity::class.java),
+            android.app.PendingIntent.FLAG_IMMUTABLE or android.app.PendingIntent.FLAG_UPDATE_CURRENT
+        )
+
+        val notification = androidx.core.app.NotificationCompat.Builder(context, channelId)
+            .setContentTitle("Daily Goal Reached! 🎉")
+            .setContentText("Congratulations! You've completed your daily scrolling goal. Why not take a break?")
+            .setSmallIcon(com.example.scrolltrek.R.mipmap.ic_launcher)
+            .setContentIntent(pendingIntent)
+            .setAutoCancel(true)
+            .setPriority(androidx.core.app.NotificationCompat.PRIORITY_MAX)
+            .setDefaults(androidx.core.app.NotificationCompat.DEFAULT_ALL)
+            .build()
+
+        notificationManager.notify(1002, notification)
+    }
+
     // Dynamic Flow of Date Keys to trigger updates on date change
     private fun todayDateFlow(): Flow<String> = flow {
         while (currentCoroutineContext().isActive) {
@@ -277,7 +329,7 @@ class ScrollRepository @Inject constructor(
     // Today's summary stream combining daily aggregates and SharedPreferences goals
     val todaySummary: Flow<DailySummary> = todayDateFlow().flatMapLatest { dateKey ->
         dailyAggregateDao.observeDailyAggregate(dateKey).map { aggregate ->
-            val goalMeters = sharedPreferences.getFloat("KEY_DAILY_GOAL_METERS", 0f)
+            val goalMeters = getDailyGoalFromDisk()
             if (aggregate != null) {
                 val progressFraction = if (goalMeters > 0f) (aggregate.totalDistanceM / goalMeters).toFloat() else 0f
                 DailySummary(
@@ -309,15 +361,23 @@ class ScrollRepository @Inject constructor(
         milestoneDao.observeUnlockedMilestones()
     ) { lifetimeTotalOrNull, unlockedRecords ->
         val lifetimeTotal = lifetimeTotalOrNull ?: 0.0
-        val currentLandmark = landmarkRepository.getCurrentLandmark(lifetimeTotal) ?: landmarkRepository.getAll().first()
+        val currentLandmark = landmarkRepository.getCurrentLandmark(lifetimeTotal)
         val nextLandmark = landmarkRepository.getNextLandmark(lifetimeTotal) ?: landmarkRepository.getAll().last()
 
         val distanceToNextM = maxOf(0.0, nextLandmark.distanceMeters - lifetimeTotal)
-        val segmentLength = nextLandmark.distanceMeters - currentLandmark.distanceMeters
-        val progressFraction = if (segmentLength > 0.0) {
-            ((lifetimeTotal - currentLandmark.distanceMeters) / segmentLength).toFloat().coerceIn(0f, 1f)
+        val segmentLength = if (currentLandmark == null) {
+            nextLandmark.distanceMeters
         } else {
-            1f
+            nextLandmark.distanceMeters - currentLandmark.distanceMeters
+        }
+        val progressFraction = if (currentLandmark == null) {
+            if (segmentLength > 0.0) (lifetimeTotal / segmentLength).toFloat().coerceIn(0f, 1f) else 0f
+        } else {
+            if (segmentLength > 0.0) {
+                ((lifetimeTotal - currentLandmark.distanceMeters) / segmentLength).toFloat().coerceIn(0f, 1f)
+            } else {
+                1f
+            }
         }
 
         val now = System.currentTimeMillis()
@@ -329,7 +389,7 @@ class ScrollRepository @Inject constructor(
         }
 
         LandmarkProgress(
-            currentLandmark = currentLandmark,
+            currentLandmark = currentLandmark ?: landmarkRepository.getAll().first(),
             nextLandmark = nextLandmark,
             lifetimeDistanceM = lifetimeTotal,
             distanceToNextM = distanceToNextM,
@@ -343,7 +403,7 @@ class ScrollRepository @Inject constructor(
         todayDateFlow(),
         dailyAggregateDao.observeRecentDailyAggregates(7)
     ) { _, recentAggregates ->
-        val goalMeters = sharedPreferences.getFloat("KEY_DAILY_GOAL_METERS", 0f)
+        val goalMeters = getDailyGoalFromDisk()
         val summaries = mutableListOf<DailySummary>()
 
         for (i in 0 until 7) {
@@ -419,6 +479,23 @@ class ScrollRepository @Inject constructor(
     }
 
 
+    private fun getDailyGoalFromDisk(): Float {
+        try {
+            val prefsFile = java.io.File(context.filesDir.parentFile, "shared_prefs/${context.packageName}_preferences.xml")
+            if (prefsFile.exists()) {
+                val content = prefsFile.readText()
+                val regex = """<float\s+name=["']KEY_DAILY_GOAL_METERS["']\s+value=["']([^"']+)["']""".toRegex()
+                val match = regex.find(content)
+                if (match != null) {
+                    return match.groupValues[1].toFloatOrNull() ?: 100f
+                }
+            }
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
+        return sharedPreferences.getFloat("KEY_DAILY_GOAL_METERS", 100f)
+    }
+
     /**
      * Polled by foreground service to construct notification text.
      */
@@ -433,7 +510,7 @@ class ScrollRepository @Inject constructor(
                 val todayStr = if (todayDistance >= 1000.0) {
                     String.format(java.util.Locale.US, "%.1fkm", todayDistance / 1000.0)
                 } else {
-                    "${todayDistance.toInt()}m"
+                    "${todayDistance.roundToInt()}m"
                 }
 
                 if (nextLandmark != null) {
@@ -441,7 +518,7 @@ class ScrollRepository @Inject constructor(
                     val nextStr = if (distToNext >= 1000.0) {
                         String.format(java.util.Locale.US, "%.1fkm", distToNext / 1000.0)
                     } else {
-                        "${distToNext.toInt()}m"
+                        "${distToNext.roundToInt()}m"
                     }
                     "Today: $todayStr · ${nextLandmark.name} in $nextStr"
                 } else {
@@ -451,6 +528,11 @@ class ScrollRepository @Inject constructor(
                 "Monitoring scroll distance"
             }
         }
+    }
+
+    suspend fun getAppBreakdownForHour(dateKey: String, hour: Int): List<com.example.scrolltrek.data.db.dao.AppScrollTotal> = withContext(Dispatchers.IO) {
+        val hourStr = String.format(java.util.Locale.US, "%02d", hour)
+        scrollRecordDao.getAppBreakdownForHour(dateKey, hourStr)
     }
 
     /**

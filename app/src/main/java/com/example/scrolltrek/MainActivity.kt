@@ -8,6 +8,8 @@ import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -23,7 +25,7 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             val context = LocalContext.current
-            val sharedPreferences = remember { context.getSharedPreferences("scrolltrek_prefs", Context.MODE_PRIVATE) }
+            val sharedPreferences = remember { context.getSharedPreferences(context.packageName + "_preferences", Context.MODE_PRIVATE) }
             var appTheme by remember {
                 mutableStateOf(sharedPreferences.getString("app_theme", "system") ?: "system")
             }
@@ -41,7 +43,10 @@ class MainActivity : ComponentActivity() {
             }
 
             ScrollTrekTheme(themeSetting = appTheme) {
-                Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
+                Surface(
+                    modifier = Modifier.fillMaxSize(),
+                    color = MaterialTheme.colorScheme.surface
+                ) {
                     val navController = rememberNavController()
                     ScrollTrekNavHost(
                         navController = navController

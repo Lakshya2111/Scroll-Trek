@@ -40,4 +40,8 @@ class InsightsViewModel @Inject constructor(
         started = SharingStarted.WhileSubscribed(5000),
         initialValue = emptyList()
     )
+
+    suspend fun getAppBreakdownForHour(dateKey: String, hour: Int): List<AppScrollTotal> {
+        return scrollRepository.getAppBreakdownForHour(dateKey, hour)
+    }
 }

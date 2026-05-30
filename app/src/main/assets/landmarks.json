@@ -156,6 +156,19 @@
     "cardGradientEnd": "#9E9E9E"
   },
   {
+    "id": "hawa_mahal",
+    "name": "Hawa Mahal",
+    "location": "Jaipur, India",
+    "distanceMeters": 15.00,
+    "tier": "COMMON",
+    "orientation": "VERTICAL",
+    "funFact": "Hawa Mahal has 953 small casements (windows) designed to allow cool air to pass through, keeping the palace cool during hot summers.",
+    "shareMessage": "I scrolled the height of the Hawa Mahal! Feeling the royal breeze!",
+    "illustrationRes": "illustration_hawamahal",
+    "cardGradientStart": "#FF8A80",
+    "cardGradientEnd": "#FF5252"
+  },
+  {
     "id": "bowling_lane",
     "name": "Standard Bowling Lane",
     "location": "Bowling Alleys",
@@ -247,6 +260,19 @@
     "cardGradientEnd": "#F57F17"
   },
   {
+    "id": "qutub_minar",
+    "name": "Qutub Minar",
+    "location": "New Delhi, India",
+    "distanceMeters": 72.50,
+    "tier": "NOTABLE",
+    "orientation": "VERTICAL",
+    "funFact": "Qutub Minar is a 73-meter tall tapering tower of five storeys, built with red sandstone and marble, and is a UNESCO World Heritage site.",
+    "shareMessage": "I scrolled the height of the historic Qutub Minar! Touching medieval heights!",
+    "illustrationRes": "illustration_qutubminar",
+    "cardGradientStart": "#A1887F",
+    "cardGradientEnd": "#5D4037"
+  },
+  {
     "id": "giza_sphinx_length",
     "name": "Great Sphinx of Giza",
     "location": "Giza Plateau, Egypt",
@@ -325,6 +351,19 @@
     "cardGradientEnd": "#2E7D32"
   },
   {
+    "id": "petra_treasury",
+    "name": "Al-Khazneh (The Treasury)",
+    "location": "Petra, Jordan",
+    "distanceMeters": 120.00,
+    "tier": "NOTABLE",
+    "orientation": "VERTICAL",
+    "funFact": "Carved directly into vibrant red sandstone cliffs, the Treasury was built as a mausoleum and is one of the New Seven Wonders of the World.",
+    "shareMessage": "I scrolled the length of the Treasury of Petra! Archaeological wonder!",
+    "illustrationRes": "illustration_petra",
+    "cardGradientStart": "#E0A96D",
+    "cardGradientEnd": "#9C6644"
+  },
+  {
     "id": "london_eye",
     "name": "The London Eye",
     "location": "London, UK",
@@ -364,6 +403,19 @@
     "cardGradientEnd": "#795548"
   },
   {
+    "id": "statue_of_unity",
+    "name": "Statue of Unity",
+    "location": "Gujarat, India",
+    "distanceMeters": 182.00,
+    "tier": "LANDMARK",
+    "orientation": "VERTICAL",
+    "funFact": "It is the world's tallest statue, stands 182 meters tall, and is twice the height of the Statue of Liberty.",
+    "shareMessage": "I scrolled the towering height of the Statue of Unity! Standing tall in history!",
+    "illustrationRes": "illustration_unity",
+    "cardGradientStart": "#FFB74D",
+    "cardGradientEnd": "#F57C00"
+  },
+  {
     "id": "sydney_opera_house",
     "name": "Sydney Opera House",
     "location": "Sydney, Australia",
@@ -388,6 +440,19 @@
     "illustrationRes": "illustration_colosseum",
     "cardGradientStart": "#FFE082",
     "cardGradientEnd": "#6D4C41"
+  },
+  {
+    "id": "burj_al_arab",
+    "name": "Burj Al Arab",
+    "location": "Dubai, UAE",
+    "distanceMeters": 321.00,
+    "tier": "LANDMARK",
+    "orientation": "VERTICAL",
+    "funFact": "Designed to mimic the sail of a ship, this luxury hotel stands on an artificial island and is one of the tallest hotels in the world.",
+    "shareMessage": "I scrolled the height of the Burj Al Arab! Seven-star progress!",
+    "illustrationRes": "illustration_burjalarab",
+    "cardGradientStart": "#80DEEA",
+    "cardGradientEnd": "#00838F"
   },
   {
     "id": "eiffel_tower",

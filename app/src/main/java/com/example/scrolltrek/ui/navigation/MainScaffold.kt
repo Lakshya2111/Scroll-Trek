@@ -1,5 +1,7 @@
 package com.example.scrolltrek.ui.navigation
 
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Icon
 import androidx.compose.material3.NavigationBar
@@ -19,6 +21,7 @@ fun MainScaffold(
     startTab: Tab
 ) {
     Scaffold(
+        contentWindowInsets = WindowInsets.navigationBars,
         bottomBar = {
             NavigationBar {
                 Tab.values().forEach { tab ->

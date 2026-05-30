@@ -1,8 +1,17 @@
 package com.example.scrolltrek.data.engine
 
+import android.app.NotificationChannel
+import android.app.NotificationManager
+import android.app.PendingIntent
+import android.content.Context
+import android.content.Intent
+import android.os.Build
+import androidx.core.app.NotificationCompat
+import com.example.scrolltrek.MainActivity
 import com.example.scrolltrek.data.db.dao.MilestoneDao
 import com.example.scrolltrek.data.model.Landmark
 import com.example.scrolltrek.data.repository.LandmarkRepository
+import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
@@ -12,7 +21,8 @@ import javax.inject.Singleton
 @Singleton
 class MilestoneEngine @Inject constructor(
     private val milestoneDao: MilestoneDao,
-    private val landmarkRepository: LandmarkRepository
+    private val landmarkRepository: LandmarkRepository,
+    @ApplicationContext private val context: Context
 ) {
     private val _milestoneUnlockEvents = MutableSharedFlow<Landmark>(
         replay = 0,
@@ -36,7 +46,43 @@ class MilestoneEngine @Inject constructor(
             if (landmark != null) {
                 milestoneDao.unlock(record.landmarkId, System.currentTimeMillis())
                 _milestoneUnlockEvents.emit(landmark)
+                sendMilestoneNotification(landmark)
             }
         }
+    }
+
+    private fun sendMilestoneNotification(landmark: Landmark) {
+        val notificationManager = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+        val channelId = "scrolltrek_goal_alerts"
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            val name = "ScrollTrek Goal & Milestone Alerts"
+            val importance = NotificationManager.IMPORTANCE_HIGH
+            val channel = NotificationChannel(channelId, name, importance).apply {
+                description = "ScrollTrek Goal and Milestone Alerts"
+                enableLights(true)
+                enableVibration(true)
+                vibrationPattern = longArrayOf(100, 200, 300, 400, 500)
+            }
+            notificationManager.createNotificationChannel(channel)
+        }
+
+        val pendingIntent = PendingIntent.getActivity(
+            context,
+            landmark.id.hashCode(),
+            Intent(context, MainActivity::class.java),
+            PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT
+        )
+
+        val notification = NotificationCompat.Builder(context, channelId)
+            .setContentTitle("New Landmark Unlocked! 🏆")
+            .setContentText("You've scrolled the length of ${landmark.name} (${landmark.location})!")
+            .setSmallIcon(com.example.scrolltrek.R.mipmap.ic_launcher)
+            .setContentIntent(pendingIntent)
+            .setAutoCancel(true)
+            .setPriority(NotificationCompat.PRIORITY_MAX)
+            .setDefaults(NotificationCompat.DEFAULT_ALL)
+            .build()
+
+        notificationManager.notify(landmark.id.hashCode(), notification)
     }
 }

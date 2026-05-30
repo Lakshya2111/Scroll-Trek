@@ -34,11 +34,12 @@ class TrackingForegroundService : Service() {
         super.onCreate()
         startServiceForeground()
 
-        // Start dynamic notification subtitle updater running every 60 seconds
+        // Collect today's summary flow to update notification in real-time
         serviceScope.launch {
-            while (isActive) {
-                delay(60000)
-                updateNotification()
+            if (::repository.isInitialized) {
+                repository.todaySummary.collect {
+                    updateNotification()
+                }
             }
         }
     }

@@ -176,7 +176,7 @@ fun LandmarkDetailSheet(
                             Text(
                                 text = landmark.funFact,
                                 fontSize = 13.sp,
-                                color = Color.DarkGray
+                                color = MaterialTheme.colorScheme.onSurfaceVariant
                             )
                         }
                     }

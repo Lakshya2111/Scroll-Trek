@@ -9,6 +9,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Lock
 import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -24,19 +25,19 @@ fun PrivacyBadge(
 ) {
     Row(
         modifier = modifier
-            .background(Color(0xFFE8F0FE), shape = RoundedCornerShape(16.dp))
+            .background(MaterialTheme.colorScheme.primaryContainer, shape = RoundedCornerShape(16.dp))
             .padding(horizontal = 12.dp, vertical = 6.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
         Icon(
             imageVector = Icons.Rounded.Lock,
             contentDescription = "Lock",
-            tint = Color(0xFF1A73E8)
+            tint = MaterialTheme.colorScheme.onPrimaryContainer
         )
         Spacer(modifier = Modifier.width(6.dp))
         Text(
             text = "100% local. No servers. No accounts.",
-            color = Color(0xFF1A73E8),
+            color = MaterialTheme.colorScheme.onPrimaryContainer,
             fontSize = 12.sp,
             fontWeight = FontWeight.Medium
         )

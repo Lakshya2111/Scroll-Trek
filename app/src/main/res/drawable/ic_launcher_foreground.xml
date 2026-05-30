@@ -1,47 +1,66 @@
 <vector xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:aapt="http://schemas.android.com/aapt"
     android:width="108dp"
     android:height="108dp"
     android:viewportWidth="108"
     android:viewportHeight="108">
     
-    <!-- Stylized Mountain Trek Peak -->
+    <!-- Stylized Unfurled Map/Scroll Background Sheet -->
     <path
-        android:fillColor="#E94560"
-        android:fillType="nonZero"
-        android:pathData="M54,28 L80,74 L28,74 Z"
+        android:fillColor="#F5F5F0"
+        android:pathData="M28,24 H80 V84 H28 Z"
         android:strokeWidth="0" />
         
-    <!-- Stylized Snow Cap or Summit -->
+    <!-- Left Border Scroll Highlight (Giving it thickness) -->
     <path
-        android:fillColor="#FFFFFF"
-        android:fillType="nonZero"
-        android:pathData="M54,28 L61,40 L47,40 Z"
+        android:fillColor="#E0E0D5"
+        android:pathData="M28,24 H32 V84 H28 Z"
+        android:strokeWidth="0" />
+
+    <!-- Top Rolled Cylinder of the Scroll -->
+    <path
+        android:fillColor="#D7CCC8"
+        android:pathData="M24,18 H84 C86.2,18 88,19.8 88,22 C88,24.2 86.2,26 84,26 H24 C21.8,26 20,24.2 20,22 C20,19.8 21.8,18 24,18 Z"
         android:strokeWidth="0" />
         
-    <!-- Stylized Left Shadow Segment -->
+    <!-- Top Cylinder End Cap Spiral Detail -->
     <path
-        android:fillColor="#22000000"
-        android:fillType="nonZero"
-        android:pathData="M54,28 L54,74 L28,74 Z"
+        android:fillColor="#8D6E63"
+        android:pathData="M24,20 C22.9,20 22,20.9 22,22 C22,23.1 22.9,24 24,24 Z"
         android:strokeWidth="0" />
 
-    <!-- Scroll Chevron Up Arrow (Outer trail) -->
+    <!-- Bottom Rolled Cylinder of the Scroll -->
     <path
-        android:fillColor="#00000000"
-        android:pathData="M24,84 L54,69 L84,84"
-        android:strokeWidth="4.5"
-        android:strokeColor="#FFFFFF"
-        android:strokeLineCap="round"
-        android:strokeLineJoin="round" />
+        android:fillColor="#D7CCC8"
+        android:pathData="M24,82 H84 C86.2,82 88,83.8 88,86 C88,88.2 86.2,90 84,90 H24 C21.8,90 20,88.2 20,86 C20,83.8 21.8,82 24,82 Z"
+        android:strokeWidth="0" />
 
-    <!-- Scroll Chevron Down Arrow (glowing trail) -->
+    <!-- Bottom Cylinder End Cap Spiral Detail -->
+    <path
+        android:fillColor="#8D6E63"
+        android:pathData="M24,84 C22.9,84 22,84.9 22,86 C22,87.1 22.9,88 24,88 Z"
+        android:strokeWidth="0" />
+
+    <!-- Winding Trekking Trail/Path on Scroll Map -->
     <path
         android:fillColor="#00000000"
-        android:pathData="M24,18 L54,33 L84,18"
-        android:strokeWidth="4"
+        android:pathData="M36,76 Q42,76 44,66 T52,56 T60,46 T72,36"
+        android:strokeWidth="3.5"
         android:strokeColor="#E94560"
         android:strokeLineCap="round"
         android:strokeLineJoin="round" />
-        
+
+    <!-- Stylized Mountain Summit Flagpole -->
+    <path
+        android:fillColor="#00000000"
+        android:pathData="M72,38 L72,24"
+        android:strokeWidth="2.5"
+        android:strokeColor="#4E342E"
+        android:strokeLineCap="round" />
+
+    <!-- Red Mountain Peak Flag -->
+    <path
+        android:fillColor="#E94560"
+        android:pathData="M72,24 L82,28 L72,32 Z"
+        android:strokeWidth="0" />
+
 </vector>

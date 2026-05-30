@@ -57,7 +57,7 @@ fun OnboardingStep1ValueProp(
                 text = "Find out how far your thumb really travels and unlock landmarks along the way.",
                 style = MaterialTheme.typography.bodyLarge,
                 textAlign = TextAlign.Center,
-                color = Color.Gray,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
                 modifier = Modifier.padding(horizontal = 16.dp)
             )
         }
@@ -95,6 +95,8 @@ fun ScrollToMapAnimation(modifier: Modifier = Modifier) {
         label = "pulse"
     )
 
+    val phoneOutlineColor = MaterialTheme.colorScheme.outline
+
     Canvas(modifier = modifier) {
         val width = size.width
         val height = size.height
@@ -105,7 +107,7 @@ fun ScrollToMapAnimation(modifier: Modifier = Modifier) {
         val phoneTop = (height - phoneHeight) / 2
 
         drawRoundRect(
-            color = Color(0xFF16213E),
+            color = phoneOutlineColor,
             topLeft = Offset(phoneLeft, phoneTop),
             size = androidx.compose.ui.geometry.Size(phoneWidth, phoneHeight),
             cornerRadius = androidx.compose.ui.geometry.CornerRadius(24f, 24f),

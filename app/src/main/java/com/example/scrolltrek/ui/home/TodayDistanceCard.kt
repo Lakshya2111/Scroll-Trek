@@ -22,6 +22,7 @@ import com.example.scrolltrek.ui.common.DistanceFormatter
 import com.example.scrolltrek.ui.theme.Accent
 import com.example.scrolltrek.ui.theme.Primary
 import com.example.scrolltrek.ui.theme.PrimaryContainer
+import androidx.compose.ui.platform.LocalContext
 
 @Composable
 fun TodayDistanceCard(
@@ -32,6 +33,20 @@ fun TodayDistanceCard(
     modifier: Modifier = Modifier
 ) {
     var expanded by remember { mutableStateOf(false) }
+    val context = LocalContext.current
+    val cleanAppName = remember(todaySummary.topApp) {
+        if (todaySummary.topApp.isBlank()) "None"
+        else if (todaySummary.topApp == "android") "Android System"
+        else {
+            try {
+                val pm = context.packageManager
+                val appInfo = pm.getApplicationInfo(todaySummary.topApp, 0)
+                pm.getApplicationLabel(appInfo).toString()
+            } catch (e: Exception) {
+                todaySummary.topApp.substringAfterLast(".").replaceFirstChar { it.uppercase() }
+            }
+        }
+    }
 
     Card(
         modifier = modifier
@@ -126,6 +141,37 @@ fun TodayDistanceCard(
                     fontSize = 14.sp
                 )
 
+                if (todaySummary.totalDistanceM >= todaySummary.goalMeters && todaySummary.goalMeters > 0) {
+                    Spacer(modifier = Modifier.height(12.dp))
+                    Card(
+                        colors = CardDefaults.cardColors(containerColor = Color.White.copy(alpha = 0.15f)),
+                        shape = RoundedCornerShape(12.dp)
+                    ) {
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(12.dp),
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(8.dp)
+                        ) {
+                            Text("🎉", fontSize = 20.sp)
+                            Column {
+                                Text(
+                                    text = "Daily Goal Reached!",
+                                    color = Color.White,
+                                    fontWeight = FontWeight.Bold,
+                                    fontSize = 14.sp
+                                )
+                                Text(
+                                    text = "Your thumbs worked hard. Time to rest your eyes and take a screen break!",
+                                    color = Color.White.copy(alpha = 0.9f),
+                                    fontSize = 12.sp
+                                )
+                            }
+                        }
+                    }
+                }
+
                 if (expanded) {
                     Spacer(modifier = Modifier.height(20.dp))
                     HorizontalDivider(color = Color.White.copy(alpha = 0.2f))
@@ -133,23 +179,9 @@ fun TodayDistanceCard(
 
                     Row(
                         modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.SpaceBetween
+                        horizontalArrangement = Arrangement.SpaceEvenly
                     ) {
-                        Column {
-                            Text(
-                                text = "Sessions",
-                                color = Color.White.copy(alpha = 0.6f),
-                                fontSize = 12.sp
-                            )
-                            Text(
-                                text = "${todaySummary.sessionCount}",
-                                color = Color.White,
-                                fontWeight = FontWeight.Bold,
-                                fontSize = 16.sp
-                            )
-                        }
-
-                        Column {
+                        Column(horizontalAlignment = Alignment.CenterHorizontally) {
                             Text(
                                 text = "Goal",
                                 color = Color.White.copy(alpha = 0.6f),
@@ -163,15 +195,14 @@ fun TodayDistanceCard(
                             )
                         }
 
-                        Column {
+                        Column(horizontalAlignment = Alignment.CenterHorizontally) {
                             Text(
                                 text = "Top App",
                                 color = Color.White.copy(alpha = 0.6f),
                                 fontSize = 12.sp
                             )
-                            val cleanAppName = todaySummary.topApp.substringAfterLast(".")
                             Text(
-                                text = if (cleanAppName.isEmpty()) "None" else cleanAppName,
+                                text = cleanAppName,
                                 color = Color.White,
                                 fontWeight = FontWeight.Bold,
                                 fontSize = 16.sp

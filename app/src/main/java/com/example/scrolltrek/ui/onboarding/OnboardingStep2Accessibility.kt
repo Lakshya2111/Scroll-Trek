@@ -136,6 +136,9 @@ fun OnboardingStep2Accessibility(
 
 @Composable
 fun PhoneSilhouetteWithScrollArrows(modifier: Modifier = Modifier) {
+    val outlineColor = MaterialTheme.colorScheme.outline
+    val arrowColor = MaterialTheme.colorScheme.primary
+
     Canvas(modifier = modifier) {
         val width = size.width
         val height = size.height
@@ -146,7 +149,7 @@ fun PhoneSilhouetteWithScrollArrows(modifier: Modifier = Modifier) {
         val phoneTop = (height - phoneHeight) / 2
 
         drawRoundRect(
-            color = Color.LightGray,
+            color = outlineColor,
             topLeft = Offset(phoneLeft, phoneTop),
             size = androidx.compose.ui.geometry.Size(phoneWidth, phoneHeight),
             cornerRadius = androidx.compose.ui.geometry.CornerRadius(16f, 16f),
@@ -157,31 +160,31 @@ fun PhoneSilhouetteWithScrollArrows(modifier: Modifier = Modifier) {
         val centerY = height / 2
 
         drawLine(
-            color = Color(0xFF1A73E8),
+            color = arrowColor,
             start = Offset(centerX, centerY - 30f),
             end = Offset(centerX, centerY + 30f),
             strokeWidth = 6f
         )
         drawLine(
-            color = Color(0xFF1A73E8),
+            color = arrowColor,
             start = Offset(centerX, centerY - 30f),
             end = Offset(centerX - 15f, centerY - 15f),
             strokeWidth = 6f
         )
         drawLine(
-            color = Color(0xFF1A73E8),
+            color = arrowColor,
             start = Offset(centerX, centerY - 30f),
             end = Offset(centerX + 15f, centerY - 15f),
             strokeWidth = 6f
         )
         drawLine(
-            color = Color(0xFF1A73E8),
+            color = arrowColor,
             start = Offset(centerX, centerY + 30f),
             end = Offset(centerX - 15f, centerY + 15f),
             strokeWidth = 6f
         )
         drawLine(
-            color = Color(0xFF1A73E8),
+            color = arrowColor,
             start = Offset(centerX, centerY + 30f),
             end = Offset(centerX + 15f, centerY + 15f),
             strokeWidth = 6f

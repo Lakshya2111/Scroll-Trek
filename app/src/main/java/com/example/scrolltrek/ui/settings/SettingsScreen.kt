@@ -37,11 +37,16 @@ fun SettingsScreen(
     modifier: Modifier = Modifier
 ) {
     val context = LocalContext.current
-    val sharedPreferences = remember { context.getSharedPreferences("scrolltrek_prefs", Context.MODE_PRIVATE) }
+    val sharedPreferences = remember { context.getSharedPreferences(context.packageName + "_preferences", Context.MODE_PRIVATE) }
 
     var dailyGoal by remember {
-        mutableStateOf(sharedPreferences.getFloat("daily_scroll_goal", 100f))
+        val initialGoal = sharedPreferences.getFloat("KEY_DAILY_GOAL_METERS", 0f)
+        val finalGoal = if (initialGoal > 0f) initialGoal else sharedPreferences.getFloat("daily_scroll_goal", 100f)
+        mutableStateOf(finalGoal)
     }
+
+    var showGoalDialog by remember { mutableStateOf(false) }
+    var goalInputText by remember { mutableStateOf("") }
 
     var appTheme by remember {
         mutableStateOf(sharedPreferences.getString("app_theme", "system") ?: "system")
@@ -155,11 +160,17 @@ fun SettingsScreen(
                     Spacer(modifier = Modifier.height(16.dp))
 
                     Row(
-                        modifier = Modifier.fillMaxWidth(),
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clickable {
+                                goalInputText = dailyGoal.toInt().toString()
+                                showGoalDialog = true
+                            }
+                            .padding(vertical = 4.dp),
                         horizontalArrangement = Arrangement.SpaceBetween,
                         verticalAlignment = Alignment.CenterVertically
                     ) {
-                        Text("Goal meters", fontSize = 14.sp, color = Color.Gray)
+                        Text("Goal meters (Tap to type)", fontSize = 14.sp, color = Color.Gray)
                         Text(
                             text = DistanceFormatter.format(dailyGoal.toDouble()),
                             fontWeight = FontWeight.Bold,
@@ -172,12 +183,60 @@ fun SettingsScreen(
                         value = dailyGoal,
                         onValueChange = {
                             dailyGoal = it.roundToInt().toFloat()
-                            sharedPreferences.edit().putFloat("daily_scroll_goal", dailyGoal).apply()
+                            sharedPreferences.edit()
+                                .putFloat("daily_scroll_goal", dailyGoal)
+                                .putFloat("KEY_DAILY_GOAL_METERS", dailyGoal)
+                                .commit()
                         },
-                        valueRange = 10f..1000f,
-                        steps = 99
+                        valueRange = 10f..1000f
                     )
                 }
+            }
+
+            if (showGoalDialog) {
+                AlertDialog(
+                    onDismissRequest = { showGoalDialog = false },
+                    title = { Text("Set Daily Scroll Goal", fontWeight = FontWeight.Bold) },
+                    text = {
+                        Column {
+                            Text("Enter your daily goal in meters:", fontSize = 12.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                            Spacer(modifier = Modifier.height(8.dp))
+                            OutlinedTextField(
+                                value = goalInputText,
+                                onValueChange = { input ->
+                                    if (input.all { it.isDigit() } && input.length <= 5) {
+                                        goalInputText = input
+                                    }
+                                },
+                                singleLine = true,
+                                modifier = Modifier.fillMaxWidth(),
+                                placeholder = { Text("e.g. 150") }
+                            )
+                        }
+                    },
+                    confirmButton = {
+                        Button(
+                            onClick = {
+                                val newGoal = goalInputText.toFloatOrNull()
+                                if (newGoal != null && newGoal >= 1f && newGoal <= 10000f) {
+                                    dailyGoal = newGoal
+                                    sharedPreferences.edit()
+                                        .putFloat("daily_scroll_goal", dailyGoal)
+                                        .putFloat("KEY_DAILY_GOAL_METERS", dailyGoal)
+                                        .commit()
+                                }
+                                showGoalDialog = false
+                            }
+                        ) {
+                            Text("Save")
+                        }
+                    },
+                    dismissButton = {
+                        TextButton(onClick = { showGoalDialog = false }) {
+                            Text("Cancel")
+                        }
+                    }
+                )
             }
 
             Card(

@@ -58,6 +58,10 @@ fun InsightsScreen(
             item {
                 ScrollHeatmap(
                     hourlyData = hourlyHeatmap,
+                    onHourClick = { hour ->
+                        val dateKey = java.time.LocalDate.now().toString()
+                        viewModel.getAppBreakdownForHour(dateKey, hour)
+                    },
                     modifier = Modifier.fillMaxWidth()
                 )
             }

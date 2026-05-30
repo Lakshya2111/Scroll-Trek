@@ -1,13 +1,16 @@
 package com.example.scrolltrek.ui.insights
 
+import android.content.Context
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -16,10 +19,27 @@ import com.example.scrolltrek.ui.common.DistanceFormatter
 import com.example.scrolltrek.ui.theme.Accent
 
 @Composable
+fun getAppName(packageName: String, context: Context): String {
+    if (packageName.isBlank()) return "Unknown App"
+    if (packageName == "android") return "Android System"
+    return remember(packageName) {
+        try {
+            val pm = context.packageManager
+            val appInfo = pm.getApplicationInfo(packageName, 0)
+            pm.getApplicationLabel(appInfo).toString()
+        } catch (e: Exception) {
+            packageName.substringAfterLast(".").replaceFirstChar { it.uppercase() }
+        }
+    }
+}
+
+@Composable
 fun AppBreakdownList(
     appBreakdown: List<AppScrollTotal>,
     modifier: Modifier = Modifier
 ) {
+    val context = LocalContext.current
+
     Card(
         modifier = modifier
             .fillMaxWidth()
@@ -54,7 +74,7 @@ fun AppBreakdownList(
                     verticalArrangement = Arrangement.spacedBy(16.dp)
                 ) {
                     appBreakdown.sortedByDescending { it.total }.take(5).forEach { appTotal ->
-                        val cleanAppName = appTotal.sourcePackage.substringAfterLast(".")
+                        val cleanAppName = getAppName(appTotal.sourcePackage, context)
                         val percentage = (appTotal.total / totalDistance).toFloat()
 
                         Column(modifier = Modifier.fillMaxWidth()) {

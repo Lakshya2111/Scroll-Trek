@@ -76,7 +76,7 @@ fun OnboardingStep3Notifications(
                 text = "Milestones represent real physical heights. We'll send a beautiful notification the second you reach a new peak.",
                 style = MaterialTheme.typography.bodyLarge,
                 textAlign = TextAlign.Center,
-                color = Color.Gray,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
                 modifier = Modifier.padding(horizontal = 16.dp)
             )
         }
@@ -109,16 +109,14 @@ fun MilestoneCardMockup(modifier: Modifier = Modifier) {
     Card(
         modifier = modifier,
         shape = RoundedCornerShape(16.dp),
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.primaryContainer
+        ),
         elevation = CardDefaults.cardElevation(defaultElevation = 8.dp)
     ) {
         Box(
             modifier = Modifier
                 .fillMaxSize()
-                .background(
-                    Brush.verticalGradient(
-                        colors = listOf(Primary, Color(0xFF16213E))
-                    )
-                )
                 .padding(16.dp)
         ) {
             Row(
@@ -128,27 +126,27 @@ fun MilestoneCardMockup(modifier: Modifier = Modifier) {
                 Box(
                     modifier = Modifier
                         .size(48.dp)
-                        .background(Accent, shape = RoundedCornerShape(12.dp)),
+                        .background(MaterialTheme.colorScheme.secondary, shape = RoundedCornerShape(12.dp)),
                     contentAlignment = Alignment.Center
                 ) {
                     Icon(
                         imageVector = Icons.Rounded.Notifications,
                         contentDescription = "Milestone",
-                        tint = Color.White
+                        tint = MaterialTheme.colorScheme.onSecondary
                     )
                 }
                 Spacer(modifier = Modifier.width(16.dp))
                 Column {
                     Text(
                         text = "Landmark Unlocked! 🎉",
-                        color = Color.White,
+                        color = MaterialTheme.colorScheme.onPrimaryContainer,
                         fontWeight = FontWeight.Bold,
                         fontSize = 16.sp
                     )
                     Spacer(modifier = Modifier.height(4.dp))
                     Text(
                         text = "You just scaled the Eiffel Tower!",
-                        color = Color.White.copy(alpha = 0.8f),
+                        color = MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.8f),
                         fontSize = 14.sp
                     )
                 }

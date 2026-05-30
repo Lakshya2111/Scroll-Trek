@@ -52,7 +52,7 @@ fun HomeScreen(
             CenterAlignedTopAppBar(
                 title = {
                     Text(
-                        text = "scrollTrek",
+                        text = "Scroll Trek",
                         fontWeight = FontWeight.Black,
                         fontSize = 20.sp
                     )

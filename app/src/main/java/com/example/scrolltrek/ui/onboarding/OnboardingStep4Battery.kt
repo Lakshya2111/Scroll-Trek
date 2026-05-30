@@ -80,13 +80,13 @@ fun OnboardingStep4Battery(
             Box(
                 modifier = Modifier
                     .size(80.dp)
-                    .background(Color(0xFFFFF3CD), shape = RoundedCornerShape(20.dp)),
+                    .background(MaterialTheme.colorScheme.errorContainer, shape = RoundedCornerShape(20.dp)),
                 contentAlignment = Alignment.Center
             ) {
                 Icon(
                     imageVector = Icons.Rounded.BatteryAlert,
                     contentDescription = "Battery",
-                    tint = Color(0xFFFFC107),
+                    tint = MaterialTheme.colorScheme.error,
                     modifier = Modifier.size(48.dp)
                 )
             }

@@ -18,7 +18,7 @@ import com.example.scrolltrek.ui.settings.AppExclusionScreen
 @Composable
 fun ScrollTrekNavHost(navController: NavHostController) {
     val context = LocalContext.current
-    val sharedPreferences = remember { context.getSharedPreferences("scrolltrek_prefs", Context.MODE_PRIVATE) }
+    val sharedPreferences = remember { context.getSharedPreferences(context.packageName + "_preferences", Context.MODE_PRIVATE) }
     val onboardingComplete = remember { sharedPreferences.getBoolean("onboarding_complete", false) }
 
     NavHost(

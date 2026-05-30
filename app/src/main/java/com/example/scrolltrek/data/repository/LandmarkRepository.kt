@@ -34,6 +34,7 @@ class LandmarkRepository @Inject constructor(
             reader.close()
 
             val jsonArray = JSONArray(stringBuilder.toString())
+            val rawList = mutableListOf<Landmark>()
             for (i in 0 until jsonArray.length()) {
                 val jsonObject = jsonArray.getJSONObject(i)
                 val landmark = Landmark(
@@ -49,10 +50,20 @@ class LandmarkRepository @Inject constructor(
                     cardGradientStart = jsonObject.getString("cardGradientStart"),
                     cardGradientEnd = jsonObject.getString("cardGradientEnd")
                 )
-                landmarks.add(landmark)
+                rawList.add(landmark)
             }
-            // Sort by distance in ascending order to simplify next-landmark searches
-            landmarks.sortBy { it.distanceMeters }
+            
+            // Sort rawList by distance
+            rawList.sortBy { it.distanceMeters }
+            
+            // Filter: starting with >= 1.0m and ensuring consecutive distance gap >= 1.0m
+            var lastDistance = -999.0
+            for (landmark in rawList) {
+                if (landmark.distanceMeters >= 1.0 && (landmark.distanceMeters - lastDistance) >= 1.0) {
+                    landmarks.add(landmark)
+                    lastDistance = landmark.distanceMeters
+                }
+            }
         } catch (e: Exception) {
             e.printStackTrace()
         }
@@ -83,6 +94,6 @@ class LandmarkRepository @Inject constructor(
      * Returns the closest unlocked landmark.
      */
     fun getCurrentLandmark(currentDistanceM: Double): Landmark? {
-        return landmarks.lastOrNull { it.distanceMeters <= currentDistanceM } ?: landmarks.firstOrNull()
+        return landmarks.lastOrNull { it.distanceMeters <= currentDistanceM }
     }
 }

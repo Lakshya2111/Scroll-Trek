@@ -48,7 +48,7 @@ interface ScrollRecordDao {
 
     // Hourly distribution for heatmap
     @Query("""
-        SELECT strftime('%H', timestampMs/1000, 'unixepoch') AS hour, 
+        SELECT strftime('%H', timestampMs/1000, 'unixepoch', 'localtime') AS hour, 
                SUM(deltaMeters) AS total
         FROM raw_scroll_records WHERE dateKey = :dateKey
         GROUP BY hour
@@ -56,12 +56,22 @@ interface ScrollRecordDao {
     fun observeHourlyDistribution(dateKey: String): Flow<List<HourlyTotal>>
 
     @Query("""
-        SELECT strftime('%H', timestampMs/1000, 'unixepoch') AS hour, 
+        SELECT strftime('%H', timestampMs/1000, 'unixepoch', 'localtime') AS hour, 
                SUM(deltaMeters) AS total
         FROM raw_scroll_records WHERE dateKey = :dateKey
         GROUP BY hour
     """)
     suspend fun getHourlyDistribution(dateKey: String): List<HourlyTotal>
+
+    @Query("""
+        SELECT sourcePackage, SUM(deltaMeters) AS total 
+        FROM raw_scroll_records 
+        WHERE dateKey = :dateKey AND strftime('%H', timestampMs/1000, 'unixepoch', 'localtime') = :hour
+        GROUP BY sourcePackage 
+        ORDER BY total DESC 
+        LIMIT 5
+    """)
+    suspend fun getAppBreakdownForHour(dateKey: String, hour: String): List<AppScrollTotal>
 
     // Pruning job — runs nightly via WorkManager
     @Query("DELETE FROM raw_scroll_records WHERE dateKey < :cutoffDateKey")
