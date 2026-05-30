@@ -110,51 +110,175 @@ fun ScrollHeatmap(
     if (selectedHour != null) {
         AlertDialog(
             onDismissRequest = { selectedHour = null },
-            title = { Text(text = "Hour $selectedHour:00 Scroll Breakdown", fontWeight = FontWeight.Bold) },
+            shape = RoundedCornerShape(28.dp),
+            containerColor = MaterialTheme.colorScheme.surface,
+            title = {
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(10.dp),
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Box(
+                        modifier = Modifier
+                            .background(
+                                color = Accent.copy(alpha = 0.15f),
+                                shape = RoundedCornerShape(12.dp)
+                            )
+                            .padding(8.dp),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Text(
+                            text = "⏰",
+                            fontSize = 20.sp
+                        )
+                    }
+                    Column {
+                        Text(
+                            text = "Scroll Breakdown",
+                            fontWeight = FontWeight.Black,
+                            fontSize = 18.sp,
+                            color = MaterialTheme.colorScheme.onSurface
+                        )
+                        val nextHour = (selectedHour!! + 1) % 24
+                        Text(
+                            text = String.format("%02d:00 - %02d:00", selectedHour, nextHour),
+                            fontSize = 12.sp,
+                            color = Color.Gray,
+                            fontWeight = FontWeight.Bold
+                        )
+                    }
+                }
+            },
             text = {
                 if (isLoadingApps) {
                     Box(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .height(100.dp),
+                            .height(150.dp),
                         contentAlignment = Alignment.Center
                     ) {
-                        CircularProgressIndicator()
+                        CircularProgressIndicator(color = Accent)
                     }
                 } else if (selectedHourApps.isEmpty()) {
-                    Text("No app scrolling recorded for this hour.", color = Color.Gray)
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(vertical = 24.dp),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Text("No app scrolling recorded for this hour.", color = Color.Gray, fontSize = 14.sp)
+                    }
                 } else {
+                    val totalHourScroll = selectedHourApps.sumOf { it.total }.coerceAtLeast(0.001)
+                    
                     Column(
                         verticalArrangement = Arrangement.spacedBy(12.dp),
-                        modifier = Modifier.fillMaxWidth()
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(top = 8.dp)
                     ) {
                         selectedHourApps.forEach { appTotal ->
                             val cleanName = getAppName(appTotal.sourcePackage, context)
-                            Row(
+                            val percentage = (appTotal.total / totalHourScroll).toFloat().coerceIn(0f, 1f)
+                            
+                            Card(
                                 modifier = Modifier.fillMaxWidth(),
-                                horizontalArrangement = Arrangement.SpaceBetween,
-                                verticalAlignment = Alignment.CenterVertically
+                                shape = RoundedCornerShape(18.dp),
+                                colors = CardDefaults.cardColors(
+                                    containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.4f)
+                                ),
+                                border = androidx.compose.foundation.BorderStroke(
+                                    width = 1.dp,
+                                    color = MaterialTheme.colorScheme.outline.copy(alpha = 0.12f)
+                                )
                             ) {
-                                Text(
-                                    text = cleanName,
-                                    fontWeight = FontWeight.Bold,
-                                    fontSize = 14.sp,
-                                    modifier = Modifier.weight(1f)
-                                )
-                                Text(
-                                    text = DistanceFormatter.format(appTotal.total),
-                                    fontSize = 14.sp,
-                                    color = MaterialTheme.colorScheme.primary,
-                                    fontWeight = FontWeight.Bold
-                                )
+                                Row(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .padding(12.dp),
+                                    verticalAlignment = Alignment.CenterVertically
+                                ) {
+                                    // Stylized avatar with first letter of clean name
+                                    Box(
+                                        modifier = Modifier
+                                            .size(40.dp)
+                                            .background(
+                                                color = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.8f),
+                                                shape = RoundedCornerShape(12.dp)
+                                            ),
+                                        contentAlignment = Alignment.Center
+                                    ) {
+                                        Text(
+                                            text = cleanName.take(1).uppercase(),
+                                            color = MaterialTheme.colorScheme.onPrimaryContainer,
+                                            fontWeight = FontWeight.Black,
+                                            fontSize = 18.sp
+                                        )
+                                    }
+                                    
+                                    Spacer(modifier = Modifier.width(12.dp))
+                                    
+                                    Column(
+                                        modifier = Modifier.weight(1f)
+                                    ) {
+                                        Row(
+                                            modifier = Modifier.fillMaxWidth(),
+                                            horizontalArrangement = Arrangement.SpaceBetween,
+                                            verticalAlignment = Alignment.CenterVertically
+                                        ) {
+                                            Text(
+                                                text = cleanName,
+                                                fontWeight = FontWeight.Bold,
+                                                fontSize = 13.sp,
+                                                color = MaterialTheme.colorScheme.onSurface
+                                            )
+                                            Text(
+                                                text = DistanceFormatter.format(appTotal.total),
+                                                fontSize = 13.sp,
+                                                color = Accent,
+                                                fontWeight = FontWeight.Black
+                                            )
+                                        }
+                                        
+                                        Spacer(modifier = Modifier.height(6.dp))
+                                        
+                                        LinearProgressIndicator(
+                                            progress = { percentage },
+                                            modifier = Modifier
+                                                .fillMaxWidth()
+                                                .height(6.dp)
+                                                .background(
+                                                    color = MaterialTheme.colorScheme.outline.copy(alpha = 0.15f),
+                                                    shape = RoundedCornerShape(3.dp)
+                                                ),
+                                            color = Accent,
+                                            trackColor = Color.Transparent,
+                                            strokeCap = androidx.compose.ui.graphics.StrokeCap.Round
+                                        )
+                                        
+                                        Spacer(modifier = Modifier.height(4.dp))
+                                        
+                                        Text(
+                                            text = String.format("%d%% of the hour", (percentage * 100).toInt()),
+                                            fontSize = 10.sp,
+                                            color = Color.Gray,
+                                            fontWeight = FontWeight.SemiBold
+                                        )
+                                    }
+                                }
                             }
                         }
                     }
                 }
             },
             confirmButton = {
-                TextButton(onClick = { selectedHour = null }) {
-                    Text("Close")
+                Button(
+                    onClick = { selectedHour = null },
+                    colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary),
+                    shape = RoundedCornerShape(16.dp),
+                    modifier = Modifier.fillMaxWidth().padding(horizontal = 12.dp, vertical = 4.dp)
+                ) {
+                    Text("Done", fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.onPrimary)
                 }
             }
         )
