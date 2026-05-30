@@ -137,12 +137,6 @@ fun AppExclusionScreen(
                                         fontSize = 15.sp,
                                         color = MaterialTheme.colorScheme.primary
                                     )
-                                    Spacer(modifier = Modifier.height(2.dp))
-                                    Text(
-                                        text = app.packageName,
-                                        fontSize = 11.sp,
-                                        color = Color.Gray
-                                    )
                                 }
 
                                 Switch(
