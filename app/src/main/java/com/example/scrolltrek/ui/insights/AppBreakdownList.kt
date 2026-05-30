@@ -74,65 +74,115 @@ fun AppBreakdownList(
                 val sortedList = appBreakdown.sortedByDescending { it.total }.take(6)
 
                 Column(
-                    verticalArrangement = Arrangement.spacedBy(20.dp)
+                    verticalArrangement = Arrangement.spacedBy(12.dp)
                 ) {
                     sortedList.forEachIndexed { index, appTotal ->
                         val cleanAppName = getAppName(appTotal.sourcePackage, context)
                         val percentage = (appTotal.total / totalDistance).toFloat()
 
-                        Column(modifier = Modifier.fillMaxWidth()) {
-                            Row(
-                                modifier = Modifier.fillMaxWidth(),
-                                horizontalArrangement = Arrangement.SpaceBetween,
-                                verticalAlignment = Alignment.CenterVertically
-                            ) {
-                                Row(
-                                    verticalAlignment = Alignment.CenterVertically,
-                                    horizontalArrangement = Arrangement.spacedBy(10.dp),
-                                    modifier = Modifier.weight(1f)
-                                ) {
-                                    Text(
-                                        text = "${index + 1}.",
-                                        fontWeight = FontWeight.Black,
-                                        fontSize = 15.sp,
-                                        color = MaterialTheme.colorScheme.primary
-                                    )
-                                    Text(
-                                        text = cleanAppName,
-                                        fontWeight = FontWeight.Bold,
-                                        fontSize = 15.sp,
-                                        color = MaterialTheme.colorScheme.primary
-                                    )
-                                }
-
-                                Row(
-                                    verticalAlignment = Alignment.CenterVertically,
-                                    horizontalArrangement = Arrangement.spacedBy(12.dp)
-                                ) {
-                                    Text(
-                                        text = DistanceFormatter.format(appTotal.total),
-                                        fontSize = 14.sp,
-                                        fontWeight = FontWeight.Bold,
-                                        color = MaterialTheme.colorScheme.primary
-                                    )
-                                    Text(
-                                        text = "${(percentage * 100).toInt()}%",
-                                        fontSize = 14.sp,
-                                        fontWeight = FontWeight.Black,
-                                        color = MaterialTheme.colorScheme.primary
-                                    )
-                                }
-                            }
-                            Spacer(modifier = Modifier.height(8.dp))
-                            LinearProgressIndicator(
-                                progress = { percentage },
+                        Card(
+                            modifier = Modifier.fillMaxWidth(),
+                            shape = RoundedCornerShape(18.dp),
+                            colors = CardDefaults.cardColors(
+                                containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.25f)
+                            ),
+                            border = androidx.compose.foundation.BorderStroke(
+                                width = 1.dp,
+                                color = MaterialTheme.colorScheme.outline.copy(alpha = 0.12f)
+                            )
+                        ) {
+                            Column(
                                 modifier = Modifier
                                     .fillMaxWidth()
-                                    .height(6.dp),
-                                color = Accent,
-                                trackColor = MaterialTheme.colorScheme.outline.copy(alpha = 0.4f),
-                                strokeCap = StrokeCap.Round
-                            )
+                                    .padding(16.dp)
+                            ) {
+                                Row(
+                                    modifier = Modifier.fillMaxWidth(),
+                                    horizontalArrangement = Arrangement.SpaceBetween,
+                                    verticalAlignment = Alignment.CenterVertically
+                                ) {
+                                    Row(
+                                        verticalAlignment = Alignment.CenterVertically,
+                                        horizontalArrangement = Arrangement.spacedBy(12.dp),
+                                        modifier = Modifier.weight(1f)
+                                    ) {
+                                        // Styled Rank Badge
+                                        Box(
+                                            modifier = Modifier
+                                                .size(24.dp)
+                                                .background(
+                                                    color = if (index < 3) Accent.copy(alpha = 0.15f) else MaterialTheme.colorScheme.outline.copy(alpha = 0.25f),
+                                                    shape = RoundedCornerShape(6.dp)
+                                                ),
+                                            contentAlignment = Alignment.Center
+                                        ) {
+                                            Text(
+                                                text = "${index + 1}",
+                                                fontSize = 12.sp,
+                                                fontWeight = FontWeight.Black,
+                                                color = if (index < 3) Accent else MaterialTheme.colorScheme.onSurfaceVariant
+                                            )
+                                        }
+
+                                        // Clean App Name
+                                        Text(
+                                            text = cleanAppName,
+                                            fontWeight = FontWeight.Bold,
+                                            fontSize = 14.sp,
+                                            color = MaterialTheme.colorScheme.onSurface
+                                        )
+                                    }
+
+                                    // Separated Distance Capsule and Percentage Value
+                                    Row(
+                                        verticalAlignment = Alignment.CenterVertically,
+                                        horizontalArrangement = Arrangement.spacedBy(10.dp)
+                                    ) {
+                                        // Distance Capsule Pill
+                                        Box(
+                                            modifier = Modifier
+                                                .background(
+                                                    color = Accent.copy(alpha = 0.1f),
+                                                    shape = RoundedCornerShape(99.dp)
+                                                )
+                                                .padding(horizontal = 10.dp, vertical = 4.dp),
+                                            contentAlignment = Alignment.Center
+                                        ) {
+                                            Text(
+                                                text = DistanceFormatter.format(appTotal.total),
+                                                fontSize = 12.sp,
+                                                fontWeight = FontWeight.Black,
+                                                color = Accent
+                                            )
+                                        }
+
+                                        // Bold Percentage Share
+                                        Text(
+                                            text = String.format("%d%%", (percentage * 100).toInt()),
+                                            fontSize = 13.sp,
+                                            fontWeight = FontWeight.Black,
+                                            color = MaterialTheme.colorScheme.primary
+                                        )
+                                    }
+                                }
+
+                                Spacer(modifier = Modifier.height(10.dp))
+
+                                // Sleek linear progress bar
+                                LinearProgressIndicator(
+                                    progress = { percentage },
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .height(6.dp)
+                                        .background(
+                                            color = MaterialTheme.colorScheme.outline.copy(alpha = 0.15f),
+                                            shape = RoundedCornerShape(3.dp)
+                                        ),
+                                    color = Accent,
+                                    trackColor = Color.Transparent,
+                                    strokeCap = StrokeCap.Round
+                                )
+                            }
                         }
                     }
                 }
