@@ -27,7 +27,7 @@ fun ScrollTrekNavHost(navController: NavHostController) {
     ) {
         composable("onboarding") {
             OnboardingFlow(onComplete = {
-                sharedPreferences.edit().putBoolean("onboarding_complete", true).apply()
+                sharedPreferences.edit().putBoolean("onboarding_complete", true).commit()
                 navController.navigate("home") {
                     popUpTo("onboarding") { inclusive = true }
                 }

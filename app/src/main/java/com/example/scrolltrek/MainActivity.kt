@@ -1,6 +1,7 @@
 package com.example.scrolltrek
 
 import android.content.Context
+import android.content.Intent
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -20,8 +21,11 @@ import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
+    private var landmarkIdToNavigate by mutableStateOf<String?>(null)
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        handleIntent(intent)
         enableEdgeToEdge()
         setContent {
             val context = LocalContext.current
@@ -48,10 +52,37 @@ class MainActivity : ComponentActivity() {
                     color = MaterialTheme.colorScheme.surface
                 ) {
                     val navController = rememberNavController()
+
+                    val navigateId = landmarkIdToNavigate
+                    LaunchedEffect(navigateId) {
+                        if (navigateId != null) {
+                            navController.navigate("landmark_detail/$navigateId")
+                            landmarkIdToNavigate = null
+                        }
+                    }
+
                     ScrollTrekNavHost(
                         navController = navController
                     )
                 }
+            }
+        }
+    }
+
+    override fun onNewIntent(intent: Intent) {
+        super.onNewIntent(intent)
+        setIntent(intent)
+        handleIntent(intent)
+    }
+
+    private fun handleIntent(intent: Intent?) {
+        intent?.let {
+            if (it.hasExtra("KEY_NAVIGATE_LANDMARK_ID")) {
+                val landmarkId = it.getStringExtra("KEY_NAVIGATE_LANDMARK_ID")
+                if (landmarkId != null) {
+                    landmarkIdToNavigate = landmarkId
+                }
+                it.removeExtra("KEY_NAVIGATE_LANDMARK_ID")
             }
         }
     }

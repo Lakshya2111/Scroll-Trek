@@ -30,6 +30,7 @@ fun TodayDistanceCard(
     streakState: StreakState,
     lifetimeM: Double,
     isServiceRunning: Boolean,
+    trackingEnabled: Boolean = true,
     modifier: Modifier = Modifier
 ) {
     var expanded by remember { mutableStateOf(false) }
@@ -84,17 +85,20 @@ fun TodayDistanceCard(
                                 fontSize = 11.sp,
                                 letterSpacing = 1.sp
                             )
+                            val statusColor = if (!trackingEnabled) Color(0xFFFFB74D) else if (isServiceRunning) Color(0xFF81C784) else Color(0xFFE57373)
+                            val statusText = if (!trackingEnabled) "PAUSED" else if (isServiceRunning) "ACTIVE" else "STOPPED"
+
                             Box(
                                 modifier = Modifier
                                     .size(6.dp)
                                     .background(
-                                        color = if (isServiceRunning) Color(0xFF81C784) else Color(0xFFE57373),
+                                        color = statusColor,
                                         shape = androidx.compose.foundation.shape.CircleShape
                                     )
                             )
                             Text(
-                                text = if (isServiceRunning) "ACTIVE" else "STOPPED",
-                                color = if (isServiceRunning) Color(0xFF81C784) else Color(0xFFE57373),
+                                text = statusText,
+                                color = statusColor,
                                 fontWeight = FontWeight.Black,
                                 fontSize = 9.sp,
                                 letterSpacing = 0.5.sp

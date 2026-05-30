@@ -248,14 +248,11 @@ class ScrollRepository @Inject constructor(
 
         val goalMeters = getDailyGoalFromDisk()
         if (goalMeters > 0f && dailyDistance >= goalMeters) {
-            val lastDistance = existing?.totalDistanceM ?: 0.0
-            if (lastDistance < goalMeters) {
-                val todayStr = LocalDate.now().toString()
-                val lastNotifiedDate = sharedPreferences.getString("KEY_LAST_GOAL_REACHED_DATE", "")
-                if (lastNotifiedDate != todayStr) {
-                    sharedPreferences.edit().putString("KEY_LAST_GOAL_REACHED_DATE", todayStr).apply()
-                    sendGoalReachedNotification()
-                }
+            val todayStr = LocalDate.now().toString()
+            val lastNotifiedDate = sharedPreferences.getString("KEY_LAST_GOAL_REACHED_DATE", "")
+            if (lastNotifiedDate != todayStr) {
+                sharedPreferences.edit().putString("KEY_LAST_GOAL_REACHED_DATE", todayStr).commit()
+                sendGoalReachedNotification()
             }
         }
 

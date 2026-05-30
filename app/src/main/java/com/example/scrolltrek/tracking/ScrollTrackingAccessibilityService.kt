@@ -56,7 +56,22 @@ class ScrollTrackingAccessibilityService : AccessibilityService() {
     private var lastEmittedPackage: String = ""
     private var lastEmittedTimeMs: Long = 0L
 
-    private val prefListener = SharedPreferences.OnSharedPreferenceChangeListener { prefs, _ ->
+    private val prefListener = SharedPreferences.OnSharedPreferenceChangeListener { prefs, key ->
+        if (key == "KEY_TRACKING_ENABLED") {
+            val enabled = prefs.getBoolean("KEY_TRACKING_ENABLED", true)
+            if (!enabled) {
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+                    disableSelf()
+                }
+            } else {
+                val intent = Intent(this, TrackingForegroundService::class.java)
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                    startForegroundService(intent)
+                } else {
+                    startService(intent)
+                }
+            }
+        }
         updatePrefs(prefs)
     }
 
@@ -80,6 +95,27 @@ class ScrollTrackingAccessibilityService : AccessibilityService() {
         val prefs = getSharedPreferences(packageName + "_preferences", Context.MODE_PRIVATE)
         updatePrefs(prefs)
         prefs.registerOnSharedPreferenceChangeListener(prefListener)
+    }
+
+    override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
+        if (intent != null) {
+            val action = intent.action
+            if (action == "ACTION_DISABLE_TRACKING") {
+                trackingEnabled = false
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+                    disableSelf()
+                }
+            } else if (action == "ACTION_ENABLE_TRACKING") {
+                trackingEnabled = true
+                val fgsIntent = Intent(this, TrackingForegroundService::class.java)
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                    startForegroundService(fgsIntent)
+                } else {
+                    startService(fgsIntent)
+                }
+            }
+        }
+        return super.onStartCommand(intent, flags, startId)
     }
 
     private fun updatePrefs(prefs: SharedPreferences) {
@@ -283,6 +319,13 @@ class ScrollTrackingAccessibilityService : AccessibilityService() {
         super.onDestroy()
         val prefs = getSharedPreferences(packageName + "_preferences", Context.MODE_PRIVATE)
         prefs.unregisterOnSharedPreferenceChangeListener(prefListener)
+
+        try {
+            val serviceIntent = Intent(this, TrackingForegroundService::class.java)
+            stopService(serviceIntent)
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
 
         if (::repository.isInitialized) {
             runBlocking {

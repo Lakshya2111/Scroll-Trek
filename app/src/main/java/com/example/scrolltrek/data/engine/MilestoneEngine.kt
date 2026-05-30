@@ -66,10 +66,15 @@ class MilestoneEngine @Inject constructor(
             notificationManager.createNotificationChannel(channel)
         }
 
+        val intent = Intent(context, MainActivity::class.java).apply {
+            putExtra("KEY_NAVIGATE_LANDMARK_ID", landmark.id)
+            flags = Intent.FLAG_ACTIVITY_SINGLE_TOP or Intent.FLAG_ACTIVITY_CLEAR_TOP
+        }
+
         val pendingIntent = PendingIntent.getActivity(
             context,
             landmark.id.hashCode(),
-            Intent(context, MainActivity::class.java),
+            intent,
             PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT
         )
 

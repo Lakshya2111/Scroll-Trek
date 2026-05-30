@@ -1,5 +1,8 @@
 package com.example.scrolltrek.ui.home
 
+import android.content.Context
+import android.content.Intent
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.icons.Icons
@@ -31,6 +34,7 @@ fun HomeScreen(
     val weeklyAnalytics by viewModel.weekly.collectAsStateWithLifecycle()
 
     var isServiceRunning by remember { mutableStateOf(false) }
+    var trackingEnabled by remember { mutableStateOf(true) }
     val context = LocalContext.current
 
     LaunchedEffect(Unit) {
@@ -40,8 +44,27 @@ fun HomeScreen(
     }
 
     LaunchedEffect(Unit) {
+        val sharedPreferences = context.getSharedPreferences(context.packageName + "_preferences", Context.MODE_PRIVATE)
         while (true) {
-            isServiceRunning = ServiceUtils.isAccessibilityServiceEnabled(context)
+            val serviceEnabled = ServiceUtils.isAccessibilityServiceEnabled(context)
+            isServiceRunning = serviceEnabled
+            if (serviceEnabled) {
+                val prefVal = sharedPreferences.getBoolean("KEY_TRACKING_ENABLED", true)
+                if (!prefVal) {
+                    sharedPreferences.edit().putBoolean("KEY_TRACKING_ENABLED", true).commit()
+                    trackingEnabled = true
+                    try {
+                        val serviceIntent = Intent(context, com.example.scrolltrek.tracking.ScrollTrackingAccessibilityService::class.java).apply {
+                            action = "ACTION_ENABLE_TRACKING"
+                        }
+                        context.startService(serviceIntent)
+                    } catch (e: Exception) {
+                        e.printStackTrace()
+                    }
+                }
+            } else {
+                trackingEnabled = sharedPreferences.getBoolean("KEY_TRACKING_ENABLED", true)
+            }
             delay(1000)
         }
     }
@@ -82,8 +105,47 @@ fun HomeScreen(
                     streakState = streakState,
                     lifetimeM = landmarkProgress.lifetimeDistanceM,
                     isServiceRunning = isServiceRunning,
+                    trackingEnabled = trackingEnabled,
                     modifier = Modifier.padding(horizontal = 24.dp)
                 )
+            }
+
+            if (!trackingEnabled) {
+                item {
+                    Card(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 24.dp),
+                        colors = CardDefaults.cardColors(
+                            containerColor = MaterialTheme.colorScheme.errorContainer
+                        ),
+                        shape = RoundedCornerShape(16.dp)
+                    ) {
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(16.dp),
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(12.dp)
+                        ) {
+                            Text("⏸️", fontSize = 24.sp)
+                            Column(modifier = Modifier.weight(1f)) {
+                                Text(
+                                    text = "Scroll Tracking Paused",
+                                    fontWeight = FontWeight.Bold,
+                                    fontSize = 14.sp,
+                                    color = MaterialTheme.colorScheme.onErrorContainer
+                                )
+                                Spacer(modifier = Modifier.height(2.dp))
+                                Text(
+                                    text = "Tracking is completely disabled. You can re-enable it anytime in Settings.",
+                                    fontSize = 12.sp,
+                                    color = MaterialTheme.colorScheme.onErrorContainer.copy(alpha = 0.8f)
+                                )
+                            }
+                        }
+                    }
+                }
             }
 
             item {
