@@ -11,7 +11,7 @@ android {
     compileSdk = 36
 
     defaultConfig {
-        applicationId = "com.example.scrolltrek"
+        applicationId = "io.github.lakshya2111.scrolltrek"
         minSdk = 26
         targetSdk = 35
         versionCode = 1
