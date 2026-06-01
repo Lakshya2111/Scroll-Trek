@@ -53,6 +53,18 @@ class MilestoneEngine @Inject constructor(
 
     private fun sendMilestoneNotification(landmark: Landmark) {
         val notificationManager = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+        
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            if (androidx.core.content.ContextCompat.checkSelfPermission(
+                    context,
+                    android.Manifest.permission.POST_NOTIFICATIONS
+                ) != android.content.pm.PackageManager.PERMISSION_GRANTED
+            ) {
+                android.util.Log.w("MilestoneEngine", "POST_NOTIFICATIONS permission not granted. Cannot send notification.")
+                return
+            }
+        }
+
         val channelId = "scrolltrek_goal_alerts"
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             val name = "ScrollTrek Goal & Milestone Alerts"
@@ -81,7 +93,7 @@ class MilestoneEngine @Inject constructor(
         val notification = NotificationCompat.Builder(context, channelId)
             .setContentTitle("New Landmark Unlocked! 🏆")
             .setContentText("You've scrolled the length of ${landmark.name} (${landmark.location})!")
-            .setSmallIcon(com.example.scrolltrek.R.mipmap.ic_launcher)
+            .setSmallIcon(com.example.scrolltrek.R.drawable.ic_launcher_foreground)
             .setContentIntent(pendingIntent)
             .setAutoCancel(true)
             .setPriority(NotificationCompat.PRIORITY_MAX)

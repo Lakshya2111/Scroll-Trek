@@ -249,9 +249,10 @@ class ScrollRepository @Inject constructor(
         val goalMeters = getDailyGoalFromDisk()
         if (goalMeters > 0f && dailyDistance >= goalMeters) {
             val todayStr = LocalDate.now().toString()
-            val lastNotifiedDate = sharedPreferences.getString("KEY_LAST_GOAL_REACHED_DATE", "")
+            val alertsPrefs = context.getSharedPreferences("scrolltrek_alerts", Context.MODE_PRIVATE)
+            val lastNotifiedDate = alertsPrefs.getString("KEY_LAST_GOAL_REACHED_DATE", "")
             if (lastNotifiedDate != todayStr) {
-                sharedPreferences.edit().putString("KEY_LAST_GOAL_REACHED_DATE", todayStr).commit()
+                alertsPrefs.edit().putString("KEY_LAST_GOAL_REACHED_DATE", todayStr).commit()
                 sendGoalReachedNotification()
             }
         }
@@ -282,6 +283,18 @@ class ScrollRepository @Inject constructor(
 
     private fun sendGoalReachedNotification() {
         val notificationManager = context.getSystemService(Context.NOTIFICATION_SERVICE) as android.app.NotificationManager
+        
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            if (androidx.core.content.ContextCompat.checkSelfPermission(
+                    context,
+                    android.Manifest.permission.POST_NOTIFICATIONS
+                ) != android.content.pm.PackageManager.PERMISSION_GRANTED
+            ) {
+                android.util.Log.w("ScrollRepository", "POST_NOTIFICATIONS permission not granted. Cannot send notification.")
+                return
+            }
+        }
+
         val channelId = "scrolltrek_goal_alerts"
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             val name = "ScrollTrek Goal & Milestone Alerts"
@@ -305,7 +318,7 @@ class ScrollRepository @Inject constructor(
         val notification = androidx.core.app.NotificationCompat.Builder(context, channelId)
             .setContentTitle("Daily Goal Reached! 🎉")
             .setContentText("Congratulations! You've completed your daily scrolling goal. Why not take a break?")
-            .setSmallIcon(com.example.scrolltrek.R.mipmap.ic_launcher)
+            .setSmallIcon(com.example.scrolltrek.R.drawable.ic_launcher_foreground)
             .setContentIntent(pendingIntent)
             .setAutoCancel(true)
             .setPriority(androidx.core.app.NotificationCompat.PRIORITY_MAX)
@@ -481,10 +494,22 @@ class ScrollRepository @Inject constructor(
             val prefsFile = java.io.File(context.filesDir.parentFile, "shared_prefs/${context.packageName}_preferences.xml")
             if (prefsFile.exists()) {
                 val content = prefsFile.readText()
-                val regex = """<float\s+name=["']KEY_DAILY_GOAL_METERS["']\s+value=["']([^"']+)["']""".toRegex()
-                val match = regex.find(content)
-                if (match != null) {
-                    return match.groupValues[1].toFloatOrNull() ?: 100f
+                
+                // Regular expressions matching both orders (name first, or value first) for both keys
+                val keys = listOf("KEY_DAILY_GOAL_METERS", "daily_scroll_goal")
+                for (key in keys) {
+                    val nameFirstRegex = """<float\s+name=["']$key["']\s+value=["']([^"']+)["']""".toRegex()
+                    val valueFirstRegex = """<float\s+value=["']([^"']+)["']\s+name=["']$key["']""".toRegex()
+
+                    val matchNameFirst = nameFirstRegex.find(content)
+                    if (matchNameFirst != null) {
+                        return matchNameFirst.groupValues[1].toFloatOrNull() ?: 100f
+                    }
+
+                    val matchValueFirst = valueFirstRegex.find(content)
+                    if (matchValueFirst != null) {
+                        return matchValueFirst.groupValues[1].toFloatOrNull() ?: 100f
+                    }
                 }
             }
         } catch (e: Exception) {
