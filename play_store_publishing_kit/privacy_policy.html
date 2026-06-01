@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Privacy Policy - ScrollTrek</title>
+    <style>
+        :root {
+            --primary: #1A1A2E;
+            --accent: #E94560;
+            --bg: #F8F7F4;
+            --text: #1A1A2E;
+            --card-bg: #FFFFFF;
+            --muted: #6B7280;
+            --border: #E0DDD8;
+        }
+
+        @media (prefers-color-scheme: dark) {
+            :root {
+                --primary: #E8E6E1;
+                --accent: #E94560;
+                --bg: #0F0F1A;
+                --text: #E8E6E1;
+                --card-bg: #1A1A2E;
+                --muted: #9CA3AF;
+                --border: #2C2C3E;
+            }
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--bg);
+            color: var(--text);
+            line-height: 1.6;
+            margin: 0;
+            padding: 40px 20px;
+        }
+
+        .container {
+            max-width: 720px;
+            margin: 0 auto;
+            background-color: var(--card-bg);
+            padding: 40px;
+            border-radius: 16px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+            border: 1px solid var(--border);
+        }
+
+        header {
+            text-align: center;
+            border-bottom: 2px solid var(--border);
+            padding-bottom: 30px;
+            margin-bottom: 30px;
+        }
+
+        .logo-text {
+            font-size: 2.2rem;
+            font-weight: 800;
+            letter-spacing: -0.5px;
+            margin: 0;
+            color: var(--text);
+        }
+
+        .logo-text span {
+            color: var(--accent);
+        }
+
+        .subtitle {
+            color: var(--muted);
+            margin-top: 8px;
+            font-size: 0.95rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        h1, h2, h3 {
+            color: var(--text);
+            font-weight: 700;
+        }
+
+        h2 {
+            font-size: 1.4rem;
+            margin-top: 40px;
+            border-left: 4px solid var(--accent);
+            padding-left: 12px;
+        }
+
+        p, li {
+            color: var(--text);
+            opacity: 0.9;
+        }
+
+        ul {
+            padding-left: 20px;
+        }
+
+        li {
+            margin-bottom: 8px;
+        }
+
+        .badge {
+            display: inline-block;
+            background-color: rgba(233, 69, 96, 0.1);
+            color: var(--accent);
+            padding: 4px 12px;
+            border-radius: 99px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            margin-top: 12px;
+        }
+
+        footer {
+            margin-top: 60px;
+            border-top: 1px solid var(--border);
+            padding-top: 20px;
+            text-align: center;
+            font-size: 0.85rem;
+            color: var(--muted);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div class="logo-text">scroll<span>Trek</span></div>
+            <div class="subtitle">Privacy Policy</div>
+            <div class="badge">100% Local & Private</div>
+        </header>
+
+        <section>
+            <p><strong>Last Updated: May 30, 2026</strong></p>
+            <p>ScrollTrek is committed to protecting your privacy. This Privacy Policy describes how ScrollTrek handles your information when you use our mobile application.</p>
+
+            <h2>1. Zero Data Collection</h2>
+            <p>ScrollTrek is designed with a strict privacy-first architecture:</p>
+            <ul>
+                <li><strong>No External Servers:</strong> We do not maintain external servers, cloud databases, or tracking systems.</li>
+                <li><strong>No Account Creation:</strong> You do not need to create an account, log in, or provide any personal details (such as name, email, or phone number) to use the app.</li>
+                <li><strong>No Personal Data Collection:</strong> We do not collect, store, transmit, or share any personal identity information, location data, or device identifiers.</li>
+            </ul>
+
+            <h2>2. On-Device Scroll Tracking</h2>
+            <p>ScrollTrek calculates your scroll distance locally on your device:</p>
+            <ul>
+                <li><strong>Local Processing:</strong> Raw scrolling event coordinates are processed in memory and immediately discarded. Only the computed distance (in meters) and associated app package names are saved.</li>
+                <li><strong>Room Database:</strong> All computed metrics, daily aggregates, and milestones are stored exclusively in a secure, private Room Database on your device.</li>
+                <li><strong>No Cloud Sync:</strong> None of your scrolling habits or data ever leave your device.</li>
+            </ul>
+
+            <h2>3. Accessibility Service Usage</h2>
+            <p>To track scrolling movement across third-party applications, ScrollTrek utilizes Android's Accessibility Service API:</p>
+            <ul>
+                <li><strong>Limited Scope:</strong> The Accessibility Service reads screen interaction events strictly to detect scroll delta heights (<code>TYPE_VIEW_SCROLLED</code>).</li>
+                <li><strong>Content Privacy:</strong> The service does <strong>not</strong> read, record, or capture any text content, input values, passwords, keyboard strokes, or personal information displayed on the screen.</li>
+                <li><strong>Exclusions:</strong> Tracking is automatically disabled on sensitive system and finance categories, and secure windows are automatically shielded by the operating system.</li>
+            </ul>
+
+            <h2>4. Third-Party Services</h2>
+            <p>ScrollTrek does not integrate third-party analytics SDKs, advertising networks, or social trackers. Your usage remains completely private to you.</p>
+
+            <h2>5. Data Deletion</h2>
+            <p>Since all data is stored on-device, you have full control:</p>
+            <ul>
+                <li>You can purge all tracked records and aggregates at any time by going to <strong>Settings > Clear All Data</strong>.</li>
+                <li>Uninstalling the application from your device will permanently delete all local databases and tracking history.</li>
+            </ul>
+
+            <h2>6. Contact Us</h2>
+            <p>If you have any questions or feedback regarding this Privacy Policy, you can reach out directly via your app distribution portal.</p>
+        </section>
+
+        <footer>
+            &copy; 2026 ScrollTrek. Built for digital wellness.
+        </footer>
+    </div>
+</body>
+</html>
