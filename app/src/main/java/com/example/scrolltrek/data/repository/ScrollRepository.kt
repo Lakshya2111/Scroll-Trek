@@ -51,6 +51,8 @@ class ScrollRepository @Inject constructor(
     private val milestoneDao = db.milestoneDao()
     private val streakDao = db.streakDao()
 
+    private val liveSessionPrefs = context.getSharedPreferences("scrolltrek_live_session", Context.MODE_PRIVATE)
+
     private val repositoryScope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
 
     private val _liveSession = MutableStateFlow(
@@ -64,10 +66,10 @@ class ScrollRepository @Inject constructor(
 
     private fun getLiveSessionFromPrefs(): LiveSessionState {
         return LiveSessionState(
-            sessionDistanceM = sharedPreferences.getFloat("live_session_distance", 0f).toDouble(),
-            sessionStartMs = sharedPreferences.getLong("live_session_start", 0L),
-            paceMetersPerMinute = sharedPreferences.getFloat("live_session_pace", 0f).toDouble(),
-            currentApp = sharedPreferences.getString("live_session_app", "") ?: ""
+            sessionDistanceM = liveSessionPrefs.getFloat("live_session_distance", 0f).toDouble(),
+            sessionStartMs = liveSessionPrefs.getLong("live_session_start", 0L),
+            paceMetersPerMinute = liveSessionPrefs.getFloat("live_session_pace", 0f).toDouble(),
+            currentApp = liveSessionPrefs.getString("live_session_app", "") ?: ""
         )
     }
 
@@ -79,10 +81,10 @@ class ScrollRepository @Inject constructor(
                 trySend(getLiveSessionFromPrefs())
             }
         }
-        sharedPreferences.registerOnSharedPreferenceChangeListener(listener)
+        liveSessionPrefs.registerOnSharedPreferenceChangeListener(listener)
         trySend(getLiveSessionFromPrefs())
         awaitClose {
-            sharedPreferences.unregisterOnSharedPreferenceChangeListener(listener)
+            liveSessionPrefs.unregisterOnSharedPreferenceChangeListener(listener)
         }
     }.stateIn(
         scope = repositoryScope,
@@ -182,7 +184,7 @@ class ScrollRepository @Inject constructor(
         _liveSession.value = state
 
         // Persist to cross-process SharedPreferences
-        sharedPreferences.edit()
+        liveSessionPrefs.edit()
             .putFloat("live_session_distance", sessionDistance.toFloat())
             .putLong("live_session_start", sessionStartMs)
             .putFloat("live_session_pace", pace.toFloat())
@@ -251,8 +253,13 @@ class ScrollRepository @Inject constructor(
             val todayStr = LocalDate.now().toString()
             val alertsPrefs = context.getSharedPreferences("scrolltrek_alerts", Context.MODE_PRIVATE)
             val lastNotifiedDate = alertsPrefs.getString("KEY_LAST_GOAL_REACHED_DATE", "")
-            if (lastNotifiedDate != todayStr) {
-                alertsPrefs.edit().putString("KEY_LAST_GOAL_REACHED_DATE", todayStr).commit()
+            val lastNotifiedGoal = alertsPrefs.getFloat("KEY_LAST_GOAL_REACHED_VALUE", 0f)
+
+            if (lastNotifiedDate != todayStr || goalMeters > lastNotifiedGoal) {
+                alertsPrefs.edit()
+                    .putString("KEY_LAST_GOAL_REACHED_DATE", todayStr)
+                    .putFloat("KEY_LAST_GOAL_REACHED_VALUE", goalMeters)
+                    .commit()
                 sendGoalReachedNotification()
             }
         }
@@ -628,7 +635,7 @@ class ScrollRepository @Inject constructor(
                 }
             }
             // Reset active live session states
-            sharedPreferences.edit()
+            liveSessionPrefs.edit()
                 .remove("live_session_distance")
                 .remove("live_session_start")
                 .remove("live_session_pace")
