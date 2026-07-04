@@ -12,4 +12,8 @@ data class Landmark(
     val illustrationRes: String,
     val cardGradientStart: String,
     val cardGradientEnd: String
-)
+) {
+    val fullShareMessage: String
+        get() = "$shareMessage\n\nDownload scrollTrek: https://play.google.com/store/apps/details?id=io.github.lakshya2111.scrolltrek"
+}
+

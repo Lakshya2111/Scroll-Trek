@@ -31,6 +31,17 @@
             <action android:name="android.intent.action.MAIN" />
             <category android:name="android.intent.category.LAUNCHER" />
         </intent>
+
+        <!-- OEM battery management packages (required for resolveActivity on API 30+) -->
+        <!-- Samsung Device Care / Smart Manager -->
+        <package android:name="com.samsung.android.lool" />
+        <package android:name="com.samsung.android.sm" />
+        <!-- Xiaomi MIUI Security Center -->
+        <package android:name="com.miui.securitycenter" />
+        <!-- OnePlus Security -->
+        <package android:name="com.oneplus.security" />
+        <!-- Huawei System Manager -->
+        <package android:name="com.huawei.systemmanager" />
     </queries>
 
     <!-- ═══════════════ FEATURES ═══════════════ -->

@@ -179,7 +179,7 @@ fun MilestoneRevealScreen(
                         onClick = {
                             val shareIntent = Intent(Intent.ACTION_SEND).apply {
                                 type = "text/plain"
-                                putExtra(Intent.EXTRA_TEXT, landmark.shareMessage)
+                                putExtra(Intent.EXTRA_TEXT, landmark.fullShareMessage)
                             }
                             context.startActivity(Intent.createChooser(shareIntent, "Share Unlock"))
                         },

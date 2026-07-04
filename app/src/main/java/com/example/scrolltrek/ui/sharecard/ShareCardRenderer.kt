@@ -10,7 +10,7 @@ object ShareCardRenderer {
         try {
             val shareIntent = Intent(Intent.ACTION_SEND).apply {
                 type = "text/plain"
-                putExtra(Intent.EXTRA_TEXT, landmark.shareMessage)
+                putExtra(Intent.EXTRA_TEXT, landmark.fullShareMessage)
                 flags = Intent.FLAG_ACTIVITY_NEW_TASK
             }
             context.startActivity(Intent.createChooser(shareIntent, "Share scrollTrek Landmark"))
